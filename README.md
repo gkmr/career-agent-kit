@@ -1,5 +1,7 @@
 # career-agent-kit
 
+[![tests](https://github.com/gkmr/career-agent-kit/actions/workflows/tests.yml/badge.svg)](https://github.com/gkmr/career-agent-kit/actions/workflows/tests.yml) ![python](https://img.shields.io/badge/python-3.9%20%7C%203.12-blue) ![deps](https://img.shields.io/badge/dependencies-stdlib%20only-brightgreen) [![license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+
 Four Claude skills and two stdlib Python judges for a Director or VP job search, run like
 a product launch with outside judges: decode the spec, build the launch artifacts, test
 them against checks the model cannot argue with, run a beta with scored mocks, and follow
