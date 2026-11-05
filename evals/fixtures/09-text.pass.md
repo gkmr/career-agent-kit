@@ -1,0 +1,2 @@
+- Platform line: grew ARR from $18M to $63M (3.5x) by pricing build minutes per team instead of per seat
+- Org: led a 70-person product, design and engineering org through 7 product leads

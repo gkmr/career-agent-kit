@@ -1,0 +1,734 @@
+{
+ "skill_name": "resume-tailor",
+ "suite_version": "1.0",
+ "description": "Eval suite for skills/resume-tailor, ported from the author's private suite with an invented candidate (examples/claims-ledger.example.json). Binary pass/fail assertions: each is a yes or no, so two graders cannot disagree on a score. Judges: 'script' assertions are graded by evals/run_evals.py; 'model' assertions need a model or human grader reading the output; 'docx' assertions need a rendered document and are listed, not run.",
+ "graders": {
+  "claim_check": "scripts/claim_check.py against the eval's ledger: pass when 0 FAIL findings",
+  "altitude": "scripts/altitude_count.py: pass when lever sentences are at least 2x feature sentences",
+  "duties": "scripts/altitude_count.py duties lint: pass when 0 duties lines",
+  "text_hygiene": "banned words, em dashes (or a double hyphen between words) and double spaces: pass when 0",
+  "undergrad_year": "pass when no bachelor's degree line carries a year",
+  "xx_discipline": "pass when XX metrics are at most 25% of metric bullets, at most 4, and none in the first 3 bullets",
+  "level_read": "pass when a sentence narrates an outcome through the org (through ... leads, teams, org, managers)",
+  "test_sentence": "pass when 'A recruiter for <role> reads ... concludes <X>' is present",
+  "crux_file": "pass when at least 6 numbered lines name a crux and an 'Assumption' line is present"
+ },
+ "evals": [
+  {
+   "id": 1,
+   "name": "frame-consistency-operator-vs-consultant",
+   "prompt": "Build me a resume for VP Product roles at developer-tools companies. I run product at Quillstone and I also do paid weekend consulting for two startups.",
+   "expected_output": "Frame A (operator) is chosen for operator targets. Tagline, summary opener and leading role title all read operator. The consulting work is still named, lower down, never above the main role.",
+   "assertions": [
+    {
+     "name": "frame_stated_in_bluf",
+     "description": "The BLUF names the frame and the reason; for operator targets it is A.",
+     "type": "content_check",
+     "judge": "model"
+    },
+    {
+     "name": "anchors_aligned",
+     "description": "Tagline, first summary sentence and leading role title carry the same frame.",
+     "type": "structural",
+     "judge": "model"
+    },
+    {
+     "name": "consulting_named_not_on_top",
+     "description": "The consulting work appears, below the main role.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "name": "claim-specificity-tier5-refusal",
+   "prompt": "Add 'Shipped the Tidewell MCP server that let coding agents trigger builds' to my resume. My Tidewell tenure ended in 2021.",
+   "expected_output": "The claim is refused: MCP became public in 2024, after the tenure ended (Tier 5). A Tier 4 scope alternative is offered instead, and a Tier 3 option only with a named reference.",
+   "assertions": [
+    {
+     "name": "tier5_refused",
+     "description": "The post-tenure claim is not added as written.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "alternative_offered",
+     "description": "A Tier 3 or Tier 4 wording is offered, with the reference requirement stated for Tier 3.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/02-tier5.pass.md",
+    "fail": "evals/fixtures/02-tier5.fail.md"
+   }
+  },
+  {
+   "id": 3,
+   "name": "content-budget-net-zero",
+   "prompt": "Here is my v1 resume. Add bullets about my weekend consulting, two more metrics and my conference talk. Keep it to 2 pages.",
+   "expected_output": "Additions are listed before building, matched with removals to hold the line count, and because there are 3 or more additions the candidate is asked to prioritize. Nothing ships at 3 pages.",
+   "assertions": [
+    {
+     "name": "additions_listed_first",
+     "description": "Proposed additions are listed before any build step.",
+     "type": "interaction_pattern",
+     "judge": "model"
+    },
+    {
+     "name": "removals_matched",
+     "description": "Each addition has a matching removal or the net line delta is stated as zero.",
+     "type": "content_check",
+     "judge": "model"
+    },
+    {
+     "name": "prioritization_forced",
+     "description": "With 3 or more additions the skill warns and asks the candidate to choose.",
+     "type": "interaction_pattern",
+     "judge": "model"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "name": "chronology-gap-reask",
+   "prompt": "Tailor my resume for a developer-tools company. My source shows Tidewell 2017-2021, then Quillstone 2022-Present.",
+   "expected_output": "The skill notices the source disagrees with the ledger (Quillstone starts 2021) and asks; it never invents a bridge role or rounds dates.",
+   "assertions": [
+    {
+     "name": "conflict_detected_and_asked",
+     "description": "The date conflict is raised as a question, not resolved silently.",
+     "type": "interaction_pattern",
+     "judge": "model"
+    },
+    {
+     "name": "dates_exact",
+     "description": "Printed dates match the ledger exactly.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/23-route-parity.pass.md",
+    "fail": "evals/fixtures/23-route-parity.fail.md"
+   }
+  },
+  {
+   "id": 5,
+   "name": "founding-team-surfacing",
+   "prompt": "Tailor my resume for an early-stage startup. Background: I was the first product hire at a 12-person company, started an open-source build tool that a larger company later adopted, and was employee 25 at a seed-stage startup.",
+   "expected_output": "All three early-stage credentials are found; at least two are surfaced inline (role header or first bullet) and one aggregate line appears.",
+   "assertions": [
+    {
+     "name": "all_credentials_detected",
+     "description": "The audit lists all three credentials.",
+     "type": "content_check",
+     "judge": "model"
+    },
+    {
+     "name": "surfaced_inline",
+     "description": "At least two appear in a role header or first bullet.",
+     "type": "structural",
+     "judge": "model"
+    },
+    {
+     "name": "aggregate_line",
+     "description": "One bottom line aggregates the early-stage record.",
+     "type": "structural",
+     "judge": "model"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "name": "page-count",
+   "prompt": "Tailor my resume for a VP Product role. Source attached.",
+   "expected_output": "The rendered resume is 2 pages or fewer in the target viewer and the body is 700 to 1,300 words.",
+   "assertions": [
+    {
+     "name": "two_pages_or_fewer",
+     "description": "The rendered document is at most 2 pages.",
+     "type": "file_validation",
+     "judge": "docx"
+    },
+    {
+     "name": "word_count_in_range",
+     "description": "Body word count is 700 to 1,300.",
+     "type": "file_validation",
+     "judge": "docx"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "name": "xx-variable-metric-discipline",
+   "prompt": "Tailor my resume but hide confidential figures with placeholders.",
+   "expected_output": "XX placeholders sit on at most 25% of metric bullets and at most 4 in total, never on the top 3 bullets, public figures or team sizes, and each is paired with scope.",
+   "assertions": [
+    {
+     "name": "xx_cap",
+     "description": "XX on at most 25% of metric bullets and at most 4.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "xx_not_on_top_three",
+     "description": "No XX in the first three bullets.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "xx_not_on_public_or_team",
+     "description": "No XX on public figures or team sizes.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "xx_discipline"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/07-xx.pass.md",
+    "fail": "evals/fixtures/07-xx.fail.md"
+   }
+  },
+  {
+   "id": 8,
+   "name": "keyword-match-per-jd",
+   "prompt": "Tailor my resume for the Veridane VP Product, Developer Platform JD and score the match.",
+   "expected_output": "A weighted JD signal table (Tier 1 1.5x, Tier 2 1.0x, Tier 3 0.5x) is produced and the match is at least 9.5 of 10.",
+   "assertions": [
+    {
+     "name": "weighted_table",
+     "description": "A weighted signal table is present.",
+     "type": "structural",
+     "judge": "model"
+    },
+    {
+     "name": "match_at_least_9_5",
+     "description": "The stated match is at least 9.5 of 10.",
+     "type": "numeric_check",
+     "judge": "model"
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "name": "text-hygiene",
+   "prompt": "Tailor my resume for a cloud infrastructure company. Source attached.",
+   "expected_output": "Zero banned words, zero em dashes (or double hyphens standing in for one), zero double spaces.",
+   "assertions": [
+    {
+     "name": "no_banned_words",
+     "description": "None of the banned words appear.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "no_em_dashes",
+     "description": "No em dash and no double hyphen between words.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "no_double_spaces",
+     "description": "No double spaces inside lines.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "text_hygiene"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/09-text.pass.md",
+    "fail": "evals/fixtures/09-text.fail.md"
+   }
+  },
+  {
+   "id": 10,
+   "name": "cross-viewer-render",
+   "prompt": "Tailor my resume and make sure it renders the same in Word and Google Docs.",
+   "expected_output": "Exact line spacing on every paragraph, autospacing off, fonts embedded, tab stops instead of spaces, no layout tables.",
+   "assertions": [
+    {
+     "name": "exact_line_rule",
+     "description": "All paragraphs use exact line spacing.",
+     "type": "xml_structure",
+     "judge": "docx"
+    },
+    {
+     "name": "no_layout_tables",
+     "description": "No tables are used for layout.",
+     "type": "xml_structure",
+     "judge": "docx"
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "name": "two-line-headers",
+   "prompt": "Tailor my resume using two-line company headers.",
+   "expected_output": "Line 1: company and dates right-aligned at a tab stop; line 2: title and location.",
+   "assertions": [
+    {
+     "name": "two_line_header",
+     "description": "Each company header renders as two lines.",
+     "type": "xml_structure",
+     "judge": "docx"
+    },
+    {
+     "name": "dates_at_tab_stop",
+     "description": "Dates are right-aligned with a tab stop.",
+     "type": "xml_structure",
+     "judge": "docx"
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "name": "bold-density",
+   "prompt": "Tailor my resume and keep the bolding clean.",
+   "expected_output": "Each bullet carries 2 or 3 bold phrases, bold density decays down the page, clusters are bold all or none.",
+   "assertions": [
+    {
+     "name": "two_to_three_bold",
+     "description": "Every bullet has 2 or 3 bold phrases.",
+     "type": "xml_structure",
+     "judge": "docx"
+    },
+    {
+     "name": "bold_decays",
+     "description": "Bold density is higher at the top than the bottom.",
+     "type": "xml_structure",
+     "judge": "docx"
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "name": "accent-color-scope",
+   "prompt": "Tailor my resume with a single navy accent color.",
+   "expected_output": "One accent color, on the name and section headers only; body text stays monochrome.",
+   "assertions": [
+    {
+     "name": "accent_scope",
+     "description": "The accent appears only on the name and headers.",
+     "type": "xml_structure",
+     "judge": "docx"
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "name": "no-undergrad-year",
+   "prompt": "Tailor my resume. Education: B.A. Economics, 2009.",
+   "expected_output": "The undergraduate graduation year is removed; degree and school stay.",
+   "assertions": [
+    {
+     "name": "no_undergrad_year",
+     "description": "No year on the undergraduate degree line.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "degree_kept",
+     "description": "Degree and institution are still present.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "undergrad_year"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/14-undergrad.pass.md",
+    "fail": "evals/fixtures/14-undergrad.fail.md"
+   }
+  },
+  {
+   "id": 15,
+   "name": "parallel-frames",
+   "prompt": "Build one base resume for two targets: a VP Product operator role (frame A) and a principal consultant role at a product consultancy (frame C).",
+   "expected_output": "Both versions come from one base with small overrides; narratives differ; dates, titles and numbers are identical; filenames carry -A and -C.",
+   "assertions": [
+    {
+     "name": "one_base",
+     "description": "Both versions derive from one base.",
+     "type": "structural",
+     "judge": "model"
+    },
+    {
+     "name": "facts_identical",
+     "description": "Dates, titles and numbers match across versions and the ledger.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "narratives_differ",
+     "description": "Summaries differ materially.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/23-route-parity.pass.md",
+    "fail": "evals/fixtures/23-route-parity.fail.md"
+   }
+  },
+  {
+   "id": 16,
+   "name": "pilot-not-launch",
+   "prompt": "Add that we launched hosted build runners at Quillstone.",
+   "expected_output": "The ledger says the runners ran as a 6-week pilot with 12 design partners; the resume says pilot, never launched or GA, and explains in one line.",
+   "assertions": [
+    {
+     "name": "no_launch_claim",
+     "description": "No launch or general-availability wording while the ledger status is pilot.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/16-pilot.pass.md",
+    "fail": "evals/fixtures/16-pilot.fail.md"
+   }
+  },
+  {
+   "id": 17,
+   "name": "status-change-updates-every-surface",
+   "prompt": "Hosted runners reached general availability last month. Update my resume; older versions call it a pilot.",
+   "expected_output": "The ledger status changes to ga with a dated confirmation; every surface says launched to general availability and no stale 'pilot' wording remains.",
+   "assertions": [
+    {
+     "name": "no_stale_pilot",
+     "description": "No 'pilot' wording for the runners once the ledger says ga.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "confirmation_recorded",
+     "description": "The status change is recorded in the ledger with a date.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "evals/fixtures/ledger-runners-ga.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/17-ga.pass.md",
+    "fail": "evals/fixtures/17-ga.fail.md"
+   }
+  },
+  {
+   "id": 18,
+   "name": "bookings-not-revenue",
+   "prompt": "Say we grew revenue to $80M with the enterprise contracts.",
+   "expected_output": "Writes '$80M in multi-year contract bookings'; never revenue or ARR; explains the difference in one line.",
+   "assertions": [
+    {
+     "name": "bookings_labelled",
+     "description": "The $80M is never called revenue or ARR.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/18-bookings.pass.md",
+    "fail": "evals/fixtures/18-bookings.fail.md"
+   }
+  },
+  {
+   "id": 19,
+   "name": "plan-is-not-a-result",
+   "prompt": "Put in that we are on track for $90M ARR this year.",
+   "expected_output": "Refuses: the $90M is an internal plan target. Uses the achieved $63M ARR instead.",
+   "assertions": [
+    {
+     "name": "no_internal_figure",
+     "description": "No internal figure on an external surface.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/19-plan.pass.md",
+    "fail": "evals/fixtures/19-plan.fail.md"
+   }
+  },
+  {
+   "id": 20,
+   "name": "team-size-scope",
+   "prompt": "Say I lead 70 employees.",
+   "expected_output": "Writes '70-person org' (or 52 employees); never 70 employees, because the 70 includes 18 contractors.",
+   "assertions": [
+    {
+     "name": "team_size_exact",
+     "description": "No headcount wording that counts contractors as employees.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/20-team-size.pass.md",
+    "fail": "evals/fixtures/20-team-size.fail.md"
+   }
+  },
+  {
+   "id": 21,
+   "name": "anachronism-in-role-block",
+   "prompt": "Add that we used a GPT-4 assistant for build logs at Tidewell.",
+   "expected_output": "Refuses: GPT-4 was announced in 2023, after the Tidewell role ended in 2021. Offers the in-tenure wording.",
+   "assertions": [
+    {
+     "name": "anachronism_blocked",
+     "description": "No term inside a role block that became public after the role ended.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/21-anachronism.pass.md",
+    "fail": "evals/fixtures/21-anachronism.fail.md"
+   }
+  },
+  {
+   "id": 22,
+   "name": "candidate-baseline-in-place",
+   "prompt": "I prefer my own layout. Fix only what is wrong.",
+   "expected_output": "Edits the candidate's file in place with exact string replacements, keeps layout and page breaks, reruns the gates, lists every change with a one-line reason.",
+   "assertions": [
+    {
+     "name": "layout_preserved",
+     "description": "Same section order and page breaks as the baseline.",
+     "type": "structural",
+     "judge": "model"
+    },
+    {
+     "name": "diff_listed",
+     "description": "Every text change is listed with a reason.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ]
+  },
+  {
+   "id": 23,
+   "name": "route-parity",
+   "prompt": "Make a CPO version and a VP Product version from my master resume.",
+   "expected_output": "Narratives differ; dates, titles, numbers and claim status are identical across versions and the ledger.",
+   "assertions": [
+    {
+     "name": "dates_match_ledger",
+     "description": "Role header dates match the ledger in every version.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "narratives_differ",
+     "description": "Summaries differ materially between versions.",
+     "type": "content_check",
+     "judge": "model"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/23-route-parity.pass.md",
+    "fail": "evals/fixtures/23-route-parity.fail.md"
+   }
+  },
+  {
+   "id": 24,
+   "name": "duties-lint",
+   "prompt": "Tailor my resume. My baseline says 'Responsible for the CI platform roadmap and a team of 7 PMs'.",
+   "expected_output": "The duties bullet is rewritten as a change (number, for whom, how).",
+   "assertions": [
+    {
+     "name": "no_duties_bullets",
+     "description": "No bullet opens with a duties verb; no 'Led <team>' without an outcome.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "duties"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/24-duties.pass.md",
+    "fail": "evals/fixtures/24-duties.fail.md"
+   }
+  },
+  {
+   "id": 25,
+   "name": "summary-altitude",
+   "prompt": "Rewrite my summary for a VP Product, Developer Platform role.",
+   "expected_output": "Lever sentences are at least 2x feature sentences in the summary; tools move to role bullets.",
+   "assertions": [
+    {
+     "name": "lever_2x_feature",
+     "description": "altitude_count.py passes on the summary.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "altitude"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/25-altitude.pass.md",
+    "fail": "evals/fixtures/25-altitude.fail.md"
+   }
+  },
+  {
+   "id": 26,
+   "name": "level-read",
+   "prompt": "My target is VP Product. Make sure the summary reads at that level.",
+   "expected_output": "At least one summary sentence narrates an outcome reached through the organization.",
+   "assertions": [
+    {
+     "name": "through_the_org",
+     "description": "A summary sentence narrates an outcome through the org.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "level_read"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/26-level-read.pass.md",
+    "fail": "evals/fixtures/26-level-read.fail.md"
+   }
+  },
+  {
+   "id": 27,
+   "name": "test-sentence-in-rationale",
+   "prompt": "Tailor my resume for VP Product, Developer Platform at Veridane.",
+   "expected_output": "The rationale contains the target-level test sentence with X equal to the target role.",
+   "assertions": [
+    {
+     "name": "test_sentence_present",
+     "description": "A 'A recruiter for <role> reads ... and concludes <X>' sentence is present.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "test_sentence"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/27-test-sentence.pass.md",
+    "fail": "evals/fixtures/27-test-sentence.fail.md"
+   }
+  },
+  {
+   "id": 28,
+   "name": "jd-crux-file",
+   "prompt": "Decode this JD before tailoring.",
+   "expected_output": "jd-crux.md has one line per top-6 bullet with a crux, the repeated-word hypothesis and an assumption line.",
+   "assertions": [
+    {
+     "name": "six_crux_lines",
+     "description": "At least 6 numbered lines that each name a crux.",
+     "type": "script",
+     "judge": "script"
+    },
+    {
+     "name": "assumption_line",
+     "description": "An assumption-busting line is present.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "crux_file"
+   },
+   "fixtures": {
+    "pass": "examples/outputs/jd-crux.md",
+    "fail": "evals/fixtures/28-crux.fail.md"
+   }
+  },
+  {
+   "id": 29,
+   "name": "growth-bound-to-tenure",
+   "prompt": "Write a one-line summary opener with my ARR growth.",
+   "expected_output": "The growth number names the role or employer it happened in.",
+   "assertions": [
+    {
+     "name": "growth_bound",
+     "description": "claim_check reports no unbound-growth.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/29-growth-bound.pass.md",
+    "fail": "evals/fixtures/29-growth-bound.fail.md"
+   }
+  },
+  {
+   "id": 30,
+   "name": "unknown-number",
+   "prompt": "Say we cut build time 55% and grew ARR to $70M.",
+   "expected_output": "Refuses numbers that are not in the ledger and offers the ledger wording.",
+   "assertions": [
+    {
+     "name": "only_ledger_numbers",
+     "description": "claim_check reports no unknown-number.",
+     "type": "script",
+     "judge": "script"
+    }
+   ],
+   "grader": {
+    "name": "claim_check",
+    "ledger": "examples/claims-ledger.example.json"
+   },
+   "fixtures": {
+    "pass": "evals/fixtures/30-unknown-number.pass.md",
+    "fail": "evals/fixtures/30-unknown-number.fail.md"
+   }
+  }
+ ]
+}

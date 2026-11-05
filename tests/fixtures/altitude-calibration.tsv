@@ -1,0 +1,42 @@
+# 40 invented sentences, hand-tagged L (lever), F (feature) or N (neutral). Tags were set
+# before the lexicon was checked against them. Format: sentence<TAB>tag
+We bet that build speed, not the feature list, was the moat.	L
+I grew the platform line from $18M to $63M ARR through seven product leads.	L
+The trade-off was build speed for every team against custom work for the largest accounts.	L
+We decided to stop the plugin marketplace so the org could focus on build time.	L
+The platform became a line of business with its own revenue target.	L
+Developers who wait on builds churn, so speed mattered more than new integrations.	L
+I chose to enter the enterprise segment because it built on our existing strength in caching.	L
+The investment case was simple: owning scheduling protects the core business.	L
+Margins improved because we priced build minutes per team instead of per seat.	L
+Our market was mid-size engineering teams that the big clouds underserved.	L
+Through the directors, the org cut median build time 44% in 15 months.	L
+I said no to three partner integrations that would have diluted the platform bet.	L
+Why this team: you are hiring to fix the same problem I solved at a smaller scale.	L
+Retention, not acquisition, was the constraint on growth.	L
+We killed the desktop client to put every engineer on the teams who pay for build minutes.	L
+The board wanted more logos; I argued the real goal was profitable expansion.	L
+Our moat was the build data from 41,000 teams that no competitor could buy.	L
+I set the strategy and let the product leads own the decisions in their areas.	L
+The core business was hosted CI; everything else had to feed it.	L
+We priced the new tier at cost to serve plus a reliability premium.	L
+We built a build cache with a drag-and-drop config editor.	F
+I set up a weekly reliability review meeting with the on-call leads.	F
+We moved release checks into a single workflow tool.	F
+The team shipped a new dashboard for flaky tests.	F
+I wrote the PRD and the specs for the runner autoscaling flow.	F
+We ran A/B tests on the onboarding email copy.	F
+We migrated the test sharding logic to a new pipeline.	F
+I instrumented the setup funnel with event tracking.	F
+We automated the dependency upgrade step with a bot.	F
+Our sprint cadence moved from two weeks to one.	F
+I configured the alert thresholds in the monitoring tool.	F
+We added a button to rerun only the failed jobs.	F
+The API returns cache hits in under 50 milliseconds.	F
+I used Claude Code and Cursor to prototype the build log viewer.	F
+I joined Quillstone in 2021.	N
+Before that I spent four years at Tidewell Software.	N
+Thank you for the time today.	N
+I live in Chicago and can be in the office three days a week.	N
+My background is in consulting and then product.	N
+I studied economics and computer science.	N

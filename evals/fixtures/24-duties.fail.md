@@ -1,0 +1,2 @@
+- Responsible for the CI platform roadmap and a team of 7 PMs
+- Led the product team

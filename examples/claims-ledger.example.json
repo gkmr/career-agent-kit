@@ -1,0 +1,59 @@
+{
+  "schema": "career-agent-kit claims ledger v1",
+  "candidate": "Dana Whitfield (invented)",
+  "as_of": "2026-10-01",
+  "note": "Every person, company and number in this file is invented. Copy it to claims-ledger.json (git-ignored), replace the contents with your own record, and keep that file private.",
+  "precedence": "The newest explicit confirmation from the candidate wins and is recorded here with a date. Older resume text never reverts it. This file outranks every example and reference document.",
+  "roles": [
+    {"id": "quillstone", "employer": "Quillstone Cloud", "aliases": ["Quillstone"], "title": "Head of Product, Developer Platform", "start": 2021, "end": "Present", "dates_source": "offer letter"},
+    {"id": "tidewell", "employer": "Tidewell Software", "aliases": ["Tidewell"], "title": "Group Product Manager, CI", "start": 2017, "end": 2021, "dates_source": "offer and exit letters"},
+    {"id": "corvane", "employer": "Corvane Consulting", "aliases": ["Corvane"], "title": "Senior Associate", "start": 2013, "end": 2017, "dates_source": "candidate"}
+  ],
+  "claims": [
+    {"id": "platform-arr", "role": "quillstone", "kind": "growth", "public": true, "status": "verified",
+     "text": "Grew the developer platform line from $18M to $63M ARR (3.5x)",
+     "provenance": "FY2025 board deck; candidate-confirmed 2026-09-12"},
+    {"id": "build-time", "role": "quillstone", "kind": "growth", "public": true, "status": "verified",
+     "text": "Cut median build time 44% in 15 months while holding test pass rates",
+     "provenance": "platform metrics review, Q2 FY2025"},
+    {"id": "org", "role": "quillstone", "kind": "scale", "public": true, "status": "verified",
+     "text": "Led a 70-person product, design and engineering org (52 employees and 18 contractors) through 7 product leads",
+     "rule": "the 70 includes contractors; never call it 70 employees or 70 engineers"},
+    {"id": "teams", "role": "quillstone", "kind": "scale", "public": true, "status": "verified",
+     "text": "Developer platform used by 41,000+ teams"},
+    {"id": "bookings", "role": "quillstone", "kind": "deal", "public": true, "status": "verified",
+     "text": "Signed $80M in multi-year contract bookings in FY2025",
+     "rule": "bookings, not revenue or ARR"},
+    {"id": "plan", "role": "quillstone", "kind": "plan", "public": false, "status": "plan",
+     "text": "FY2026 internal plan target of $90M ARR",
+     "rule": "a plan, not a result; internal only"},
+    {"id": "runners", "role": "quillstone", "kind": "launch", "public": true, "status": "pilot",
+     "text": "Ran a 6-week pilot of hosted build runners with 12 design partners",
+     "rule": "a pilot, not a launch; hosted runners never reached general availability"},
+    {"id": "conversion", "role": "tidewell", "kind": "growth", "public": true, "status": "verified",
+     "text": "Raised trial-to-paid conversion on the CI product from 22% to 41%"},
+    {"id": "builds", "role": "tidewell", "kind": "scale", "public": true, "status": "verified",
+     "text": "2.1M builds a month"},
+    {"id": "corvane-clients", "role": "corvane", "kind": "scale", "public": true, "status": "verified",
+     "text": "Pricing work for 9 software clients"}
+  ],
+  "forbidden": [
+    {"id": "bookings-as-revenue", "pattern": "(revenue|ARR)\\b[^.\\n]{0,30}\\$80M|\\$80M\\s+(in\\s+|of\\s+)?(ARR|revenue|recurring)", "severity": "fail",
+     "reason": "the $80M is multi-year contract bookings, not revenue or ARR"},
+    {"id": "contractors-as-employees", "pattern": "\\b70\\s+(employees|full-time|FTEs?|engineers|staff)\\b|headcount of 70", "severity": "fail",
+     "reason": "the 70 includes 18 contractors; say '70-person org' or '52 employees'"},
+    {"id": "pilot-as-launch", "pattern": "\\blaunch(ed|ing)?\\b[^.\\n]{0,40}hosted (build )?runners|hosted (build )?runners[^.\\n]{0,20}\\b(launch|GA|general availability)\\b",
+     "when": {"claim": "runners", "status": "pilot"}, "severity": "fail",
+     "reason": "hosted runners ran as a pilot with 12 design partners; it has not launched"},
+    {"id": "pilot-stale", "pattern": "hosted (build )?runners[^.\\n]{0,30}\\bpilot\\b|\\bpilot\\b[^.\\n]{0,40}hosted (build )?runners",
+     "when": {"claim": "runners", "status": "ga"}, "severity": "fail",
+     "reason": "hosted runners reached general availability; 'pilot' is stale"},
+    {"id": "stale-title", "pattern": "VP of Product at Quillstone|Quillstone.{0,20}\\bVP\\b", "severity": "fail",
+     "reason": "the title on record is Head of Product, Developer Platform"}
+  ],
+  "anachronisms": [
+    {"term": "MCP", "pattern": "\\bMCP\\b|Model Context Protocol", "first_public": 2024, "source": "protocol announced November 2024"},
+    {"term": "GPT-4", "pattern": "\\bGPT-4", "first_public": 2023, "source": "model announced March 2023"}
+  ],
+  "non_claims": []
+}

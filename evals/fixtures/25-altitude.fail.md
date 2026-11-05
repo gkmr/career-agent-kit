@@ -1,0 +1,1 @@
+Product leader with deep experience in developer tools. Built a new build cache and a flaky-test dashboard. Set up weekly KPI reviews and a Jira workflow for the platform team. Shipped a runner API and a deploy pipeline. Grew revenue at Quillstone Cloud.

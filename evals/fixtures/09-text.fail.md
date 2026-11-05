@@ -1,0 +1,2 @@
+- Platform line: spearheaded a transformative platform roadmap to leverage build data -- grew ARR from $18M to $63M
+- Org: hands-on leader of a 70-person  org through 7 product leads

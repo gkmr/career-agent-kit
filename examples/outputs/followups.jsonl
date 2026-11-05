@@ -1,0 +1,4 @@
+{"adapter": "tasks", "loop": "veridane-vp-product", "kind": "post-onsite-artifact", "title": "Send the 48-hour follow-up artifact to the hiring manager", "due": "2026-10-16", "source": "examples/outputs/post-onsite-48h.md"}
+{"adapter": "tasks", "loop": "veridane-vp-product", "kind": "thank-you", "title": "Thank-you note: hiring manager", "due": "2026-10-15"}
+{"adapter": "tasks", "loop": "veridane-vp-product", "kind": "thank-you", "title": "Thank-you note: head of engineering", "due": "2026-10-15"}
+{"adapter": "tasks", "loop": "veridane-vp-product", "kind": "thank-you", "title": "Thank-you note: head of security", "due": "2026-10-15"}
